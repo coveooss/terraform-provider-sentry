@@ -45,12 +45,13 @@ func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 		Slug:       d.Get("slug").(string),
 		AgreeTerms: sentry.Bool(d.Get("agree_terms").(bool)),
 	}
-	logging.Debugf("Creating Sentry organization %s", params.Name)
 
+	logging.Debugf("Creating Sentry organization %s", params.Name)
 	org, _, err := client.Organizations.Create(params)
 	if err != nil {
 		return err
 	}
+	logging.Debugf("Created Sentry organization %s", org.Name)
 
 	d.SetId(org.Slug)
 	return resourceSentryOrganizationRead(d, meta)
@@ -60,12 +61,13 @@ func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	client := meta.(*sentry.Client)
 
 	slug := d.Id()
-	logging.Debugf("Reading Sentry organization %s", slug)
 
+	logging.Debugf("Reading Sentry organization %s", slug)
 	org, resp, err := client.Organizations.Get(slug)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
+	logging.Debugf("Read Sentry organization %s", org.Slug)
 
 	d.SetId(org.Slug)
 	d.Set("internal_id", org.ID)
@@ -78,16 +80,17 @@ func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*sentry.Client)
 
 	slug := d.Id()
-	logging.Debugf("Updating Sentry organization %s", slug)
 	params := &sentry.UpdateOrganizationParams{
 		Name: d.Get("name").(string),
 		Slug: d.Get("slug").(string),
 	}
 
+	logging.Debugf("Updating Sentry organization %s", slug)
 	org, _, err := client.Organizations.Update(slug, params)
 	if err != nil {
 		return err
 	}
+	logging.Debugf("Updated Sentry organization %s", org.Slug)
 
 	d.SetId(org.Slug)
 	return resourceSentryOrganizationRead(d, meta)
@@ -97,8 +100,10 @@ func resourceSentryOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*sentry.Client)
 
 	slug := d.Id()
-	logging.Debugf("Deleting Sentry organization %s", slug)
 
+	logging.Debugf("Deleting Sentry organization %s", slug)
 	_, err := client.Organizations.Delete(slug)
+	logging.Debugf("Deleted Sentry organization %s", slug)
+
 	return err
 }

@@ -49,10 +49,10 @@ func resourceSentryPluginCreate(d *schema.ResourceData, meta interface{}) error 
 	project := d.Get("project").(string)
 
 	logging.Debugf("Creating plugin %v in org %v for project %v", plugin, org, project)
-
 	if _, err := client.ProjectPlugins.Enable(org, project, plugin); err != nil {
 		return err
 	}
+	logging.Debugf("Created plugin %v in org %v for project %v", plugin, org, project)
 
 	d.SetId(plugin)
 
@@ -71,12 +71,12 @@ func resourceSentryPluginRead(d *schema.ResourceData, meta interface{}) error {
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 
-	logging.Debugf("Reading plugin with id %v in org %v for project %v", id, org, project)
-
+	logging.Debugf("Reading plugin with ID %v in org %v for project %v", id, org, project)
 	plugin, resp, err := client.ProjectPlugins.Get(org, project, id)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
+	logging.Debugf("Read plugin with ID %v in org %v for project %v", plugin.ID, org, project)
 
 	d.SetId(plugin.ID)
 
@@ -104,12 +104,12 @@ func resourceSentryPluginUpdate(d *schema.ResourceData, meta interface{}) error 
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 
-	logging.Debugf("Updating plugin with id %v in org %v for project %v", id, org, project)
-
+	logging.Debugf("Updating plugin with ID %v in org %v for project %v", id, org, project)
 	params := d.Get("config").(map[string]interface{})
 	if _, _, err := client.ProjectPlugins.Update(org, project, id, params); err != nil {
 		return err
 	}
+	logging.Debugf("Updated plugin with ID %v in org %v for project %v", id, org, project)
 
 	return resourceSentryPluginRead(d, meta)
 }
@@ -121,8 +121,9 @@ func resourceSentryPluginDelete(d *schema.ResourceData, meta interface{}) error 
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 
-	logging.Debugf("Deleting plugin with id %v in org %v for project %v", id, org, project)
-
+	logging.Debugf("Deleting plugin with ID %v in org %v for project %v", id, org, project)
 	_, err := client.ProjectPlugins.Disable(org, project, id)
+	logging.Debugf("Deleted plugin with ID %v in org %v for project %v", id, org, project)
+
 	return err
 }

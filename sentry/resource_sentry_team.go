@@ -67,6 +67,7 @@ func resourceSentryTeamCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	logging.Debugf("Created Sentry team %s in org %s", team.Name, org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(d, meta)
@@ -77,12 +78,13 @@ func resourceSentryTeamRead(d *schema.ResourceData, meta interface{}) error {
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
-	logging.Debugf("Reading Sentry team %s in org %s", slug, org)
 
+	logging.Debugf("Reading Sentry team %s in org %s", slug, org)
 	team, resp, err := client.Teams.Get(org, slug)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
+	logging.Debugf("Read Sentry team %s in org %s", team.Slug, org)
 
 	d.SetId(team.Slug)
 	d.Set("team_id", team.ID)
@@ -104,12 +106,13 @@ func resourceSentryTeamUpdate(d *schema.ResourceData, meta interface{}) error {
 		Name: d.Get("name").(string),
 		Slug: d.Get("slug").(string),
 	}
-	logging.Debugf("Updating Sentry team %s in org %s", slug, org)
 
+	logging.Debugf("Updating Sentry team %s in org %s", slug, org)
 	team, _, err := client.Teams.Update(org, slug, params)
 	if err != nil {
 		return err
 	}
+	logging.Debugf("Updated Sentry team %s in org %s", team.Slug, org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(d, meta)
@@ -120,8 +123,10 @@ func resourceSentryTeamDelete(d *schema.ResourceData, meta interface{}) error {
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
-	logging.Debugf("Deleting Sentry team %s in org %s", slug, org)
 
+	logging.Debugf("Deleting Sentry team %s in org %s", slug, org)
 	_, err := client.Teams.Delete(org, slug)
+	logging.Debugf("Deleted Sentry team %s in org %s", slug, org)
+
 	return err
 }

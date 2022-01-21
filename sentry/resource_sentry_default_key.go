@@ -54,10 +54,11 @@ func resourceSentryDefaultKeyCreate(d *schema.ResourceData, meta interface{}) er
 		},
 	}
 
-	logging.Debugf("Updating project keys for org/project %s/%s with %s", org, project, id)
+	logging.Debugf("Creating Sentry default key in org %s for project %s with ID %s", org, project, id)
 	if _, _, err = client.ProjectKeys.Update(org, project, id, params); err != nil {
 		return err
 	}
+	logging.Debugf("Created Sentry default key in org %s for project %s with ID %s", org, project, id)
 
 	d.SetId(id)
 	return resourceSentryKeyRead(d, meta)

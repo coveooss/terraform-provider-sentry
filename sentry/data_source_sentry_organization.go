@@ -33,12 +33,13 @@ func dataSourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) 
 
 	slug := d.Get("slug").(string)
 
+	logging.Debugf("Reading Sentry org named with ID: %s", slug)
 	org, _, err := client.Organizations.Get(slug)
 	if err != nil {
 		return err
 	}
+	logging.Debugf("Read Sentry org named %s with ID: %s", org.Name, org.Slug)
 
-	logging.Debugf("Received org named %s with ID: %s and internal_id: %s", org.Name, org.Slug, org.ID)
 	d.SetId(org.Slug)
 	d.Set("internal_id", org.ID)
 	d.Set("name", org.Name)
