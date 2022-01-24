@@ -1,9 +1,8 @@
 package logging
 
 import (
-	"io"
+	"bytes"
 	"log"
-	"os"
 	"strings"
 	"testing"
 )
@@ -49,10 +48,10 @@ func TestLogFunctionsLogAsExpected(t *testing.T) {
 
 	for _, tCase := range cases {
 		t.Run(tCase.name, func(t *testing.T) {
-			reader, writer := getReadWriter(t)
-			log.SetOutput(writer)
+			var buf bytes.Buffer
+			log.SetOutput(&buf)
 			tCase.logFunc(tCase.inputArgs...)
-			compareLogsToExpected(t, tCase.expectedString, reader)
+			compareLogsToExpected(t, tCase.expectedString, buf.String())
 		})
 	}
 }
@@ -104,33 +103,19 @@ func TestLogFormatFunctionsLogAsExpected(t *testing.T) {
 
 	for _, tCase := range cases {
 		t.Run(tCase.name, func(t *testing.T) {
-			reader, writer := getReadWriter(t)
-			log.SetOutput(writer)
+			var buf bytes.Buffer
+			log.SetOutput(&buf)
 			tCase.logFunc(tCase.format, tCase.inputArgs...)
-			compareLogsToExpected(t, tCase.expectedString, reader)
+			compareLogsToExpected(t, tCase.expectedString, buf.String())
 		})
 	}
 }
 
-func compareLogsToExpected(t *testing.T, expected string, reader io.Reader) {
-	buffer := make([]byte, 50) // len of Hello world this is fun
-	actualLen, err := reader.Read(buffer)
-	if err != nil {
-		t.Fatalf("couldn't read into buffer: %v", err)
-	}
-	actualText := string(buffer[:actualLen])
-	if !strings.EqualFold(expected, actualText) {
+func compareLogsToExpected(t *testing.T, expected, actual string) {
+	if !strings.EqualFold(expected, actual) {
 		t.Logf("Log strings don't match the expected strings...")
 		t.Logf("Expected:\n%s", expected)
-		t.Logf("Actual:\n%s", actualText)
+		t.Logf("Actual:\n%s", actual)
 		t.FailNow()
 	}
-}
-
-func getReadWriter(t *testing.T) (reader io.Reader, writer io.Writer) {
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("couldn't get os Pipe: %v", err)
-	}
-	return reader, writer
 }
