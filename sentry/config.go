@@ -21,7 +21,7 @@ func (c *Config) Client() (interface{}, error) {
 
 	if c.BaseURL != "" {
 		baseURL, err = url.Parse(c.BaseURL)
-		logging.Errorf("Parsing base url %s", c.BaseURL)
+		logging.Debugf("Parsing base url %s", c.BaseURL)
 		if err != nil {
 			return nil, err
 		}
