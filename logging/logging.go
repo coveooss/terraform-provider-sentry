@@ -5,24 +5,30 @@ import (
 	"log"
 )
 
+type LogLevel int
+
+func (level LogLevel) String() string {
+	return []string{"ERROR", "WARN", "INFO", "DEBUG", "TRACE"}[level]
+}
+
 const (
-	ErrorLevel   string = "ERROR"
-	WarningLevel string = "WARN"
-	InfoLevel    string = "INFO"
-	DebugLevel   string = "DEBUG"
-	TraceLevel   string = "TRACE"
+	ErrorLevel LogLevel = iota
+	WarningLevel
+	InfoLevel
+	DebugLevel
+	TraceLevel
 )
 
 func init() {
 	log.SetFlags(0) // Removes all logger prefixes
 }
 
-func formatLogLevel(logLevel string) string {
+func formatLogLevel(logLevel LogLevel) string {
 	return fmt.Sprintf("[%s]", logLevel)
 }
 
-func prefixLogArgs(prefix string, args ...interface{}) []interface{} {
-	return append([]interface{}{prefix}, args...)
+func prefixLogArgs(logLevel string, args ...interface{}) []interface{} {
+	return append([]interface{}{logLevel}, args...)
 }
 
 func Error(args ...interface{}) {
@@ -30,7 +36,7 @@ func Error(args ...interface{}) {
 }
 
 func Errorf(format string, args ...interface{}) {
-	log.Printf("[%s] "+format, prefixLogArgs(ErrorLevel, args...)...)
+	log.Printf("[%s] "+format, prefixLogArgs(ErrorLevel.String(), args...)...)
 }
 
 func Warning(args ...interface{}) {
@@ -38,7 +44,7 @@ func Warning(args ...interface{}) {
 }
 
 func Warningf(format string, args ...interface{}) {
-	log.Printf("[%s] "+format, prefixLogArgs(WarningLevel, args...)...)
+	log.Printf("[%s] "+format, prefixLogArgs(WarningLevel.String(), args...)...)
 }
 
 func Info(args ...interface{}) {
@@ -46,7 +52,7 @@ func Info(args ...interface{}) {
 }
 
 func Infof(format string, args ...interface{}) {
-	log.Printf("[%s] "+format, prefixLogArgs(InfoLevel, args...)...)
+	log.Printf("[%s] "+format, prefixLogArgs(InfoLevel.String(), args...)...)
 }
 
 func Debug(args ...interface{}) {
@@ -54,7 +60,7 @@ func Debug(args ...interface{}) {
 }
 
 func Debugf(format string, args ...interface{}) {
-	log.Printf("[%s] "+format, prefixLogArgs(DebugLevel, args...)...)
+	log.Printf("[%s] "+format, prefixLogArgs(DebugLevel.String(), args...)...)
 }
 
 func Trace(args ...interface{}) {
@@ -62,19 +68,15 @@ func Trace(args ...interface{}) {
 }
 
 func Tracef(format string, args ...interface{}) {
-	log.Printf("[%s] "+format, prefixLogArgs(TraceLevel, args...)...)
+	log.Printf("[%s] "+format, prefixLogArgs(TraceLevel.String(), args...)...)
 }
 
-func getLoggingFuncByLevel(level string) func(format string, args ...interface{}) {
-	fun, found := map[string]func(format string, args ...interface{}){
-		ErrorLevel:   Errorf,
-		WarningLevel: Warningf,
-		InfoLevel:    Infof,
-		DebugLevel:   Debugf,
-		TraceLevel:   Tracef,
+func getLoggingFuncByLevel(level LogLevel) func(format string, args ...interface{}) {
+	return []func(format string, args ...interface{}){
+		Errorf,
+		Warningf,
+		Infof,
+		Debugf,
+		Tracef,
 	}[level]
-	if !found {
-		fun = Tracef // But really, please don't get here?
-	}
-	return fun
 }
