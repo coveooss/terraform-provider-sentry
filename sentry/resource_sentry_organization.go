@@ -47,7 +47,8 @@ func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	logging.Debugf("Creating Sentry organization %s", params.Name)
-	org, _, err := client.Organizations.Create(params)
+	org, resp, err := client.Organizations.Create(params)
+	logging.LogHttpResponse(resp, org, logging.TraceLevel)
 	if err != nil {
 		return err
 	}
@@ -64,6 +65,7 @@ func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) er
 
 	logging.Debugf("Reading Sentry organization %s", slug)
 	org, resp, err := client.Organizations.Get(slug)
+	logging.LogHttpResponse(resp, org, logging.TraceLevel)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
@@ -86,7 +88,8 @@ func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	logging.Debugf("Updating Sentry organization %s", slug)
-	org, _, err := client.Organizations.Update(slug, params)
+	org, resp, err := client.Organizations.Update(slug, params)
+	logging.LogHttpResponse(resp, org, logging.TraceLevel)
 	if err != nil {
 		return err
 	}
@@ -102,7 +105,8 @@ func resourceSentryOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 	slug := d.Id()
 
 	logging.Debugf("Deleting Sentry organization %s", slug)
-	_, err := client.Organizations.Delete(slug)
+	resp, err := client.Organizations.Delete(slug)
+	logging.LogHttpResponse(resp, nil, logging.TraceLevel)
 	logging.Debugf("Deleted Sentry organization %s", slug)
 
 	return err

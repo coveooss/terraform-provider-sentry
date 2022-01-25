@@ -34,7 +34,8 @@ func dataSourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) 
 	slug := d.Get("slug").(string)
 
 	logging.Debugf("Reading Sentry org named with ID: %s", slug)
-	org, _, err := client.Organizations.Get(slug)
+	org, resp, err := client.Organizations.Get(slug)
+	logging.LogHttpResponse(resp, org, logging.TraceLevel)
 	if err != nil {
 		return err
 	}

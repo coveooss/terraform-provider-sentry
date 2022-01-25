@@ -49,7 +49,9 @@ func resourceSentryPluginCreate(d *schema.ResourceData, meta interface{}) error 
 	project := d.Get("project").(string)
 
 	logging.Debugf("Creating plugin %v in org %v for project %v", plugin, org, project)
-	if _, err := client.ProjectPlugins.Enable(org, project, plugin); err != nil {
+	resp, err := client.ProjectPlugins.Enable(org, project, plugin)
+	logging.LogHttpResponse(resp, nil, logging.TraceLevel)
+	if err != nil {
 		return err
 	}
 	logging.Debugf("Created plugin %v in org %v for project %v", plugin, org, project)
@@ -57,7 +59,9 @@ func resourceSentryPluginCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(plugin)
 
 	params := d.Get("config").(map[string]interface{})
-	if _, _, err := client.ProjectPlugins.Update(org, project, plugin, params); err != nil {
+	pluginObj, resp, err := client.ProjectPlugins.Update(org, project, plugin, params)
+	logging.LogHttpResponse(resp, pluginObj, logging.TraceLevel)
+	if err != nil {
 		return err
 	}
 
@@ -73,6 +77,7 @@ func resourceSentryPluginRead(d *schema.ResourceData, meta interface{}) error {
 
 	logging.Debugf("Reading plugin with ID %v in org %v for project %v", id, org, project)
 	plugin, resp, err := client.ProjectPlugins.Get(org, project, id)
+	logging.LogHttpResponse(resp, plugin, logging.TraceLevel)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
@@ -106,7 +111,9 @@ func resourceSentryPluginUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	logging.Debugf("Updating plugin with ID %v in org %v for project %v", id, org, project)
 	params := d.Get("config").(map[string]interface{})
-	if _, _, err := client.ProjectPlugins.Update(org, project, id, params); err != nil {
+	plugin, resp, err := client.ProjectPlugins.Update(org, project, id, params)
+	logging.LogHttpResponse(resp, plugin, logging.TraceLevel)
+	if err != nil {
 		return err
 	}
 	logging.Debugf("Updated plugin with ID %v in org %v for project %v", id, org, project)
@@ -122,7 +129,8 @@ func resourceSentryPluginDelete(d *schema.ResourceData, meta interface{}) error 
 	project := d.Get("project").(string)
 
 	logging.Debugf("Deleting plugin with ID %v in org %v for project %v", id, org, project)
-	_, err := client.ProjectPlugins.Disable(org, project, id)
+	resp, err := client.ProjectPlugins.Disable(org, project, id)
+	logging.LogHttpResponse(resp, nil, logging.TraceLevel)
 	logging.Debugf("Deleted plugin with ID %v in org %v for project %v", id, org, project)
 
 	return err

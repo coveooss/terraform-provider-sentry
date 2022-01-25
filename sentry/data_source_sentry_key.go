@@ -86,7 +86,8 @@ func dataSourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	logging.Debugf("Reading Sentry project keys in org %v for project %v", org, project)
 
-	keys, _, err := client.ProjectKeys.List(org, project)
+	keys, resp, err := client.ProjectKeys.List(org, project)
+	logging.LogHttpResponse(resp, keys, logging.TraceLevel)
 	if err != nil {
 		return err
 	}

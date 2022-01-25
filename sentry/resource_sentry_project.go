@@ -110,7 +110,8 @@ func resourceSentryProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	logging.Debugf("Creating Sentry project for team %s in org %s", team, org)
-	proj, _, err := client.Projects.Create(org, team, params)
+	proj, resp, err := client.Projects.Create(org, team, params)
+	logging.LogHttpResponse(resp, proj, logging.TraceLevel)
 	if err != nil {
 		return err
 	}
@@ -128,6 +129,7 @@ func resourceSentryProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	logging.Debugf("Reading Sentry project with ID %s in org %s", slug, org)
 	proj, resp, err := client.Projects.Get(org, slug)
+	logging.LogHttpResponse(resp, proj, logging.TraceLevel)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
@@ -181,7 +183,8 @@ func resourceSentryProjectUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	logging.Debugf("Updating Sentry project with ID %s in org %s", slug, org)
-	proj, _, err := client.Projects.Update(org, slug, params)
+	proj, resp, err := client.Projects.Update(org, slug, params)
+	logging.LogHttpResponse(resp, proj, logging.TraceLevel)
 	if err != nil {
 		return err
 	}
@@ -198,7 +201,8 @@ func resourceSentryProjectDelete(d *schema.ResourceData, meta interface{}) error
 	org := d.Get("organization").(string)
 
 	logging.Debugf("Deleting Sentry project with ID %s in org %s", slug, org)
-	_, err := client.Projects.Delete(org, slug)
+	resp, err := client.Projects.Delete(org, slug)
+	logging.LogHttpResponse(resp, nil, logging.TraceLevel)
 	logging.Debugf("Deleted Sentry project with ID %s in org %s", slug, org)
 
 	return err
