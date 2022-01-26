@@ -14,6 +14,7 @@ func LogHttpResponse(response *http.Response, responseData interface{}, logLevel
 
 	if _, found := response.Request.Header["Authorization"]; found {
 		// Scrub the auth header so no token leak during debug
+		// Note: we are modifying the actual object, so the auth is permanently lost
 		response.Request.Header["Authorization"] = []string{"Redacted to prevent leaks"}
 	}
 

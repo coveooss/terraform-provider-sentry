@@ -9,37 +9,37 @@ import (
 
 func TestLogFunctionsLogAsExpected(t *testing.T) {
 	cases := []struct {
-		name           string
+		testCaseName   string
 		inputArgs      []interface{}
 		expectedString string
 		logFunc        func(args ...interface{})
 	}{
 		{
-			name:           "Test Info",
+			testCaseName:   "Test Info",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[INFO] Hello world this is fun\n",
 			logFunc:        Info,
 		},
 		{
-			name:           "Test Debug",
+			testCaseName:   "Test Debug",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[DEBUG] Hello world this is fun\n",
 			logFunc:        Debug,
 		},
 		{
-			name:           "Test Warning",
+			testCaseName:   "Test Warning",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[WARN] Hello world this is fun\n",
 			logFunc:        Warning,
 		},
 		{
-			name:           "Test Error",
+			testCaseName:   "Test Error",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[ERROR] Hello world this is fun\n",
 			logFunc:        Error,
 		},
 		{
-			name:           "Test Trace",
+			testCaseName:   "Test Trace",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[TRACE] Hello world this is fun\n",
 			logFunc:        Trace,
@@ -47,7 +47,7 @@ func TestLogFunctionsLogAsExpected(t *testing.T) {
 	}
 
 	for _, tCase := range cases {
-		t.Run(tCase.name, func(t *testing.T) {
+		t.Run(tCase.testCaseName, func(t *testing.T) {
 			var buf bytes.Buffer
 			log.SetOutput(&buf)
 			tCase.logFunc(tCase.inputArgs...)
@@ -58,42 +58,42 @@ func TestLogFunctionsLogAsExpected(t *testing.T) {
 
 func TestLogFormatFunctionsLogAsExpected(t *testing.T) {
 	cases := []struct {
-		name           string
+		testCaseName   string
 		format         string
 		inputArgs      []interface{}
 		expectedString string
 		logFunc        func(format string, args ...interface{})
 	}{
 		{
-			name:           "Test Infof",
+			testCaseName:   "Test Infof",
 			format:         "%s %s %s",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[INFO] Hello world this is fun\n",
 			logFunc:        Infof,
 		},
 		{
-			name:           "Test Debugf",
+			testCaseName:   "Test Debugf",
 			format:         "%s %s %s",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[DEBUG] Hello world this is fun\n",
 			logFunc:        Debugf,
 		},
 		{
-			name:           "Test Warningf",
+			testCaseName:   "Test Warningf",
 			format:         "%s %s %s",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[WARN] Hello world this is fun\n",
 			logFunc:        Warningf,
 		},
 		{
-			name:           "Test Errorf",
+			testCaseName:   "Test Errorf",
 			format:         "%s %s %s",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[ERROR] Hello world this is fun\n",
 			logFunc:        Errorf,
 		},
 		{
-			name:           "Test Tracef",
+			testCaseName:   "Test Tracef",
 			format:         "%s %s %s",
 			inputArgs:      []interface{}{"Hello world", "this is", "fun"},
 			expectedString: "[TRACE] Hello world this is fun\n",
@@ -102,7 +102,7 @@ func TestLogFormatFunctionsLogAsExpected(t *testing.T) {
 	}
 
 	for _, tCase := range cases {
-		t.Run(tCase.name, func(t *testing.T) {
+		t.Run(tCase.testCaseName, func(t *testing.T) {
 			var buf bytes.Buffer
 			log.SetOutput(&buf)
 			tCase.logFunc(tCase.format, tCase.inputArgs...)
@@ -113,7 +113,7 @@ func TestLogFormatFunctionsLogAsExpected(t *testing.T) {
 
 func compareLogsToExpected(t *testing.T, expected, actual string) {
 	if !strings.EqualFold(expected, actual) {
-		t.Logf("Log strings don't match the expected strings...")
+		t.Logf("Log string doesn't match the expected string...")
 		t.Logf("Expected:\n%s", expected)
 		t.Logf("Actual:\n%s", actual)
 		t.FailNow()
