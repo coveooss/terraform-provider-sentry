@@ -82,8 +82,7 @@ func resourceSentryKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 
-	proj, resp, err := client.Projects.Get(org, project)
-	logging.LogHttpResponse(resp, proj, logging.TraceLevel)
+	_, resp, err := client.Projects.Get(org, project)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return fmt.Errorf("project not found \"%v\": %w", project, err)
 	}
@@ -97,8 +96,7 @@ func resourceSentryKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	logging.Debugf("Creating Sentry key named %s in org %s for project %s", params.Name, org, project)
-	key, resp, err := client.ProjectKeys.Create(org, project, params)
-	logging.LogHttpResponse(resp, key, logging.TraceLevel)
+	key, _, err := client.ProjectKeys.Create(org, project, params)
 	if err != nil {
 		return err
 	}
@@ -117,7 +115,6 @@ func resourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	logging.Debugf("Reading rule with ID %v in org %v for project %v", id, org, project)
 	keys, resp, err := client.ProjectKeys.List(org, project)
-	logging.LogHttpResponse(resp, keys, logging.TraceLevel)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
@@ -172,8 +169,7 @@ func resourceSentryKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	logging.Debugf("Updating Sentry key with ID %s", id)
-	key, resp, err := client.ProjectKeys.Update(org, project, id, params)
-	logging.LogHttpResponse(resp, key, logging.TraceLevel)
+	key, _, err := client.ProjectKeys.Update(org, project, id, params)
 	if err != nil {
 		return err
 	}
@@ -191,8 +187,7 @@ func resourceSentryKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	project := d.Get("project").(string)
 
 	logging.Debugf("Deleting Sentry key with ID %s", id)
-	resp, err := client.ProjectKeys.Delete(org, project, id)
-	logging.LogHttpResponse(resp, nil, logging.TraceLevel)
+	_, err := client.ProjectKeys.Delete(org, project, id)
 	logging.Debugf("Deleted Sentry key with ID %s", id)
 	return err
 }

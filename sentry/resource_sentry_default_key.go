@@ -33,7 +33,6 @@ func resourceSentryDefaultKeyCreate(d *schema.ResourceData, meta interface{}) er
 	project := d.Get("project").(string)
 
 	keys, resp, err := client.ProjectKeys.List(org, project)
-	logging.LogHttpResponse(resp, keys, logging.TraceLevel)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
@@ -56,9 +55,7 @@ func resourceSentryDefaultKeyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	logging.Debugf("Creating Sentry default key in org %s for project %s with ID %s", org, project, id)
-	key, resp, err := client.ProjectKeys.Update(org, project, id, params)
-	logging.LogHttpResponse(resp, key, logging.TraceLevel)
-	if err != nil {
+	if _, _, err := client.ProjectKeys.Update(org, project, id, params); err != nil {
 		return err
 	}
 	logging.Debugf("Created Sentry default key in org %s for project %s with ID %s", org, project, id)

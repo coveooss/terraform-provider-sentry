@@ -148,8 +148,7 @@ func resourceSentryRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	logging.Debugf("Creating rule with name %v in org %v for project %v", name, org, project)
-	rule, resp, err := client.Rules.Create(org, project, params)
-	logging.LogHttpResponse(resp, rule, logging.TraceLevel)
+	rule, _, err := client.Rules.Create(org, project, params)
 	if err != nil {
 		return err
 	}
@@ -168,7 +167,6 @@ func resourceSentryRuleRead(d *schema.ResourceData, meta interface{}) error {
 
 	logging.Debugf("Reading rule with ID %v in org %v for project %v", id, org, project)
 	rules, resp, err := client.Rules.List(org, project)
-	logging.LogHttpResponse(resp, rules, logging.TraceLevel)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return err
 	}
@@ -292,8 +290,7 @@ func resourceSentryRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	logging.Debugf("Updating rule with ID %v in org %v for project %v", id, org, project)
-	rule, resp, err := client.Rules.Update(org, project, id, params)
-	logging.LogHttpResponse(resp, rule, logging.TraceLevel)
+	_, _, err := client.Rules.Update(org, project, id, params)
 	if err != nil {
 		return err
 	}
@@ -310,8 +307,7 @@ func resourceSentryRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	project := d.Get("project").(string)
 
 	logging.Debugf("Deleting rule with ID %v in org %v for project %v", id, org, project)
-	resp, err := client.Rules.Delete(org, project, id)
-	logging.LogHttpResponse(resp, nil, logging.TraceLevel)
+	_, err := client.Rules.Delete(org, project, id)
 	logging.Debugf("Deleted rule with ID %v in org %v for project %v", id, org, project)
 
 	return err
