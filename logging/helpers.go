@@ -10,12 +10,13 @@ import (
 // response and the data that was extracted from it. It also includes some of the data
 // contained in the request sent before getting the response
 func LogHttpResponse(response *http.Response, responseData interface{}, logLevel LogLevel) {
-	logMethod := getLoggingFuncByLevel(logLevel)
-
-	if _, found := response.Request.Header["Authorization"]; found {
+	if auth, found := response.Request.Header["Authorization"]; found {
 		// Scrub the auth header so no token leak during debug
 		// Note: we are modifying the actual object, so the auth is permanently lost
 		response.Request.Header["Authorization"] = []string{"Redacted to prevent leaks"}
+		defer func() {
+			response.Request.Header["Authorization"] = auth
+		}()
 	}
 
 	prefix := strings.Repeat(" ", 6) // this is to respect the format string
@@ -49,5 +50,7 @@ func LogHttpResponse(response *http.Response, responseData interface{}, logLevel
 	} else {
 		logArgs = append(logArgs, responseData)
 	}
+
+	logMethod := getLoggingFuncByLevel(logLevel)
 	logMethod(logFormatString, logArgs...)
 }

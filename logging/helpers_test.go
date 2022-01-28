@@ -5,13 +5,16 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/jianyuan/go-sentry/sentry"
 )
 
-func mockHttpResponseStruct() *http.Response {
+const dummyAuthToken string = "Bearer grizzliesandpolarbears"
+
+func dummyHttpResponseStruct() *http.Response {
 	return &http.Response{
 		Request: &http.Request{
 			URL: &url.URL{
@@ -19,7 +22,8 @@ func mockHttpResponseStruct() *http.Response {
 				Host:   "thisissentry.com",
 			},
 			Header: http.Header{
-				"thing": []string{"value"},
+				"thing":         []string{"value"},
+				"Authorization": []string{dummyAuthToken},
 			},
 		},
 		Status: "200 OK",
@@ -63,7 +67,7 @@ func TestLogHttpResponseLogsPredictably(t *testing.T) {
 		t.Run(tCase.testCaseName, func(t *testing.T) {
 			var buf bytes.Buffer
 			log.SetOutput(&buf)
-			resp := mockHttpResponseStruct()
+			resp := dummyHttpResponseStruct()
 			LogHttpResponse(resp, tCase.responseData, TraceLevel)
 			if !strings.Contains(buf.String(), tCase.expectedDataString) {
 				t.Logf("Log string doesn't contain the expected string...")
@@ -74,4 +78,24 @@ func TestLogHttpResponseLogsPredictably(t *testing.T) {
 		})
 	}
 
+}
+
+func TestLogHttpResponseRedactsAuthNonDestructively(t *testing.T) {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	resp := dummyHttpResponseStruct()
+	var originalHeaders map[string][]string = resp.Request.Header
+	dummyRespData := &sentry.Team{
+		ID:   "sentry",
+		Slug: "sentry stuff",
+		Name: "still sentry stuff",
+	}
+	LogHttpResponse(resp, dummyRespData, TraceLevel)
+	if !reflect.DeepEqual(originalHeaders["Authorization"], resp.Request.Header["Authorization"]) {
+		t.Fatalf("The header was changed by the function call. This should not happen.")
+	}
+	if strings.Contains(buf.String(), dummyAuthToken) {
+		t.Logf("The logs should not contain secrets like the Authorization' Header value.")
+		t.Fatalf("The logs contain the test dummy token %s", dummyAuthToken)
+	}
 }
