@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"fmt"
 	"sort"
 
@@ -27,7 +28,8 @@ func resourceSentryDefaultKey() *schema.Resource {
 }
 
 func resourceSentryDefaultKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)

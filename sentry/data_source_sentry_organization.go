@@ -1,6 +1,8 @@
 package sentry
 
 import (
+	"context"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 	"github.com/jianyuan/terraform-provider-sentry/logging"
@@ -29,7 +31,8 @@ func dataSourceSentryOrganization() *schema.Resource {
 }
 
 func dataSourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Get("slug").(string)
 

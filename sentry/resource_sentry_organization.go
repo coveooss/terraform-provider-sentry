@@ -1,6 +1,8 @@
 package sentry
 
 import (
+	"context"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 	"github.com/jianyuan/terraform-provider-sentry/logging"
@@ -38,7 +40,8 @@ func resourceSentryOrganization() *schema.Resource {
 }
 
 func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	params := &sentry.CreateOrganizationParams{
 		Name:       d.Get("name").(string),
@@ -58,7 +61,8 @@ func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 
@@ -77,7 +81,8 @@ func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 	params := &sentry.UpdateOrganizationParams{
@@ -97,7 +102,8 @@ func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceSentryOrganizationDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 

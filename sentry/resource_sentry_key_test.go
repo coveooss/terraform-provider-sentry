@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -75,7 +76,7 @@ func TestAccSentryKey_RateLimit(t *testing.T) {
 }
 
 func testAccCheckSentryKeyDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*sentry.Client)
+	client := testAccProvider.Meta().(context.Context).Value(ClientContextKey).(*sentry.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "sentry_key" {
@@ -112,7 +113,7 @@ func testAccCheckSentryKeyExists(n string, projectKey *sentry.ProjectKey) resour
 			return errors.New("No key ID is set")
 		}
 
-		client := testAccProvider.Meta().(*sentry.Client)
+		client := testAccProvider.Meta().(context.Context).Value(ClientContextKey).(*sentry.Client)
 		keys, _, err := client.ProjectKeys.List(
 			rs.Primary.Attributes["organization"],
 			rs.Primary.Attributes["project"],

@@ -2,9 +2,12 @@ package logging
 
 import (
 	"bytes"
+	"context"
 	"log"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func TestLogFunctionsLogAsExpected(t *testing.T) {
@@ -118,4 +121,9 @@ func compareLogsToExpected(t *testing.T, expected, actual string) {
 		t.Logf("Actual:\n%s", actual)
 		t.FailNow()
 	}
+}
+
+func TestUsingTflog(t *testing.T) {
+	ctx := tflog.With(context.Background(), "hello", "world")
+	tflog.Error(ctx, "stuff here", "hello", "world")
 }
