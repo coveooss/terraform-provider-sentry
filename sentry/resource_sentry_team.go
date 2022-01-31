@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -55,7 +56,8 @@ func resourceSentryTeam() *schema.Resource {
 }
 
 func resourceSentryTeamCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	org := d.Get("organization").(string)
 	params := &sentry.CreateTeamParams{
@@ -74,7 +76,8 @@ func resourceSentryTeamCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryTeamRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
@@ -97,7 +100,8 @@ func resourceSentryTeamRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryTeamUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
@@ -117,7 +121,8 @@ func resourceSentryTeamUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryTeamDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)

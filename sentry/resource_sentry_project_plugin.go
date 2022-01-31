@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -43,7 +44,8 @@ func resourceSentryPlugin() *schema.Resource {
 }
 
 func resourceSentryPluginCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	plugin := d.Get("plugin").(string)
 	org := d.Get("organization").(string)
@@ -66,7 +68,8 @@ func resourceSentryPluginCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceSentryPluginRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)
@@ -97,7 +100,8 @@ func resourceSentryPluginRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryPluginUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)
@@ -112,7 +116,8 @@ func resourceSentryPluginUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceSentryPluginDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)

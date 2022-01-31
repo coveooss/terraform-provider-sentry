@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"errors"
 	"log"
 	"strings"
@@ -100,7 +101,8 @@ func resourceSentryProject() *schema.Resource {
 }
 
 func resourceSentryProjectCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	org := d.Get("organization").(string)
 	team := d.Get("team").(string)
@@ -119,7 +121,8 @@ func resourceSentryProjectCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSentryProjectRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
@@ -150,7 +153,8 @@ func resourceSentryProjectRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryProjectUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
@@ -186,7 +190,8 @@ func resourceSentryProjectUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSentryProjectDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)

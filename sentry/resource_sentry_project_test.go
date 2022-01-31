@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -68,7 +69,7 @@ func TestAccSentryProject_basic(t *testing.T) {
 }
 
 func testAccCheckSentryProjectDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*sentry.Client)
+	client := testAccProvider.Meta().(context.Context).Value(ClientContextKey).(*sentry.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "sentry_project" {
@@ -100,7 +101,7 @@ func testAccCheckSentryProjectExists(n string, proj *sentry.Project) resource.Te
 			return errors.New("No project ID is set")
 		}
 
-		client := testAccProvider.Meta().(*sentry.Client)
+		client := testAccProvider.Meta().(context.Context).Value(ClientContextKey).(*sentry.Client)
 		sentryProj, _, err := client.Projects.Get(
 			rs.Primary.Attributes["organization"],
 			rs.Primary.ID,

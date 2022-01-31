@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -89,7 +90,8 @@ func resourceSentryRule() *schema.Resource {
 }
 
 func resourceSentryRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	name := d.Get("name").(string)
 	org := d.Get("organization").(string)
@@ -157,7 +159,8 @@ func resourceSentryRuleCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryRuleRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 	id := d.Id()
@@ -223,7 +226,8 @@ func resourceSentryRuleRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	id := d.Id()
 	name := d.Get("name").(string)
@@ -290,7 +294,8 @@ func resourceSentryRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSentryRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sentry.Client)
+	ctx := meta.(context.Context)
+	client := ctx.Value(ClientContextKey).(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)

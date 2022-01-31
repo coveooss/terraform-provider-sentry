@@ -1,8 +1,15 @@
 package sentry
 
 import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+type contextKey string
+
+const ClientContextKey contextKey = "client"
 
 // Provider returns a *schema.Provider.
 func Provider() *schema.Provider {
@@ -37,14 +44,15 @@ func Provider() *schema.Provider {
 			"sentry_organization": dataSourceSentryOrganization(),
 		},
 
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerContextConfigure,
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerContextConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	config := Config{
 		Token:   d.Get("token").(string),
 		BaseURL: d.Get("base_url").(string),
 	}
-	return config.Client()
+	client, err := config.Client(ctx)
+	return context.WithValue(ctx, ClientContextKey, client), diag.FromErr(err)
 }
