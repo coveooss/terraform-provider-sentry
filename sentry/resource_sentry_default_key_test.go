@@ -1,7 +1,6 @@
 package sentry
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -90,7 +89,7 @@ func testAccCheckSentryDefaultKeyExists(n string, projectKey *sentry.ProjectKey)
 			return errors.New("No key ID is set")
 		}
 
-		client := testAccProvider.Meta().(context.Context).Value(ClientContextKey).(*sentry.Client)
+		client := testAccProvider.Meta().(*sentry.Client)
 		keys, _, err := client.ProjectKeys.List(
 			rs.Primary.Attributes["organization"],
 			rs.Primary.Attributes["project"],

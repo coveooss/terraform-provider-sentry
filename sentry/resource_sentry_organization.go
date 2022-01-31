@@ -4,18 +4,19 @@ import (
 	"context"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 )
 
 func resourceSentryOrganization() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSentryOrganizationCreate,
-		Read:   resourceSentryOrganizationRead,
-		Update: resourceSentryOrganizationUpdate,
-		Delete: resourceSentryOrganizationDelete,
+		CreateContext: resourceSentryOrganizationCreate,
+		ReadContext:   resourceSentryOrganizationRead,
+		UpdateContext: resourceSentryOrganizationUpdate,
+		DeleteContext: resourceSentryOrganizationDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -39,9 +40,8 @@ func resourceSentryOrganization() *schema.Resource {
 	}
 }
 
-func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	params := &sentry.CreateOrganizationParams{
 		Name:       d.Get("name").(string),
@@ -52,23 +52,22 @@ func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 
 	org, _, err := client.Organizations.Create(params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(org.Slug)
-	return resourceSentryOrganizationRead(d, meta)
+	return resourceSentryOrganizationRead(ctx, d, meta)
 }
 
-func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 	log.Printf("[DEBUG] Reading Sentry organization %s", slug)
 
 	org, resp, err := client.Organizations.Get(slug)
 	if found, err := checkClientGet(resp, err, d); !found {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(org.Slug)
@@ -78,9 +77,8 @@ func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 	log.Printf("[DEBUG] Updating Sentry organization %s", slug)
@@ -91,20 +89,21 @@ func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 
 	org, _, err := client.Organizations.Update(slug, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(org.Slug)
-	return resourceSentryOrganizationRead(d, meta)
+	return resourceSentryOrganizationRead(ctx, d, meta)
 }
 
-func resourceSentryOrganizationDelete(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 	log.Printf("[DEBUG] Deleting Sentry organization %s", slug)
 
 	_, err := client.Organizations.Delete(slug)
-	return err
+	logging.Debugf("Deleted Sentry organization %s", slug)
+
+	return diag.FromErr(err)
 }

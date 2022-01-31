@@ -54,5 +54,5 @@ func providerContextConfigure(ctx context.Context, d *schema.ResourceData) (inte
 		BaseURL: d.Get("base_url").(string),
 	}
 	client, err := config.Client(ctx)
-	return context.WithValue(ctx, ClientContextKey, client), diag.FromErr(err)
+	return client, diag.FromErr(err)
 }

@@ -4,16 +4,17 @@ import (
 	"context"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 )
 
 func resourceSentryTeam() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSentryTeamCreate,
-		Read:   resourceSentryTeamRead,
-		Update: resourceSentryTeamUpdate,
-		Delete: resourceSentryTeamDelete,
+		CreateContext: resourceSentryTeamCreate,
+		ReadContext:   resourceSentryTeamRead,
+		UpdateContext: resourceSentryTeamUpdate,
+		DeleteContext: resourceSentryTeamDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceSentryTeamImport,
 		},
@@ -55,9 +56,8 @@ func resourceSentryTeam() *schema.Resource {
 	}
 }
 
-func resourceSentryTeamCreate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	org := d.Get("organization").(string)
 	params := &sentry.CreateTeamParams{
@@ -68,16 +68,15 @@ func resourceSentryTeamCreate(d *schema.ResourceData, meta interface{}) error {
 
 	team, _, err := client.Teams.Create(org, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(team.Slug)
-	return resourceSentryTeamRead(d, meta)
+	return resourceSentryTeamRead(ctx, d, meta)
 }
 
-func resourceSentryTeamRead(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
@@ -85,7 +84,7 @@ func resourceSentryTeamRead(d *schema.ResourceData, meta interface{}) error {
 
 	team, resp, err := client.Teams.Get(org, slug)
 	if found, err := checkClientGet(resp, err, d); !found {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(team.Slug)
@@ -99,9 +98,8 @@ func resourceSentryTeamRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceSentryTeamUpdate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
@@ -113,21 +111,22 @@ func resourceSentryTeamUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	team, _, err := client.Teams.Update(org, slug, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(team.Slug)
-	return resourceSentryTeamRead(d, meta)
+	return resourceSentryTeamRead(ctx, d, meta)
 }
 
-func resourceSentryTeamDelete(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryTeamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
 	log.Printf("[DEBUG] Deleting Sentry team %s (Organization: %s)", slug, org)
 
 	_, err := client.Teams.Delete(org, slug)
-	return err
+	logging.Debugf("Deleted Sentry team %s in org %s", slug, org)
+
+	return diag.FromErr(err)
 }
