@@ -2,8 +2,8 @@ package sentry
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 	"github.com/jianyuan/terraform-provider-sentry/logging"
@@ -11,10 +11,10 @@ import (
 
 func resourceSentryKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSentryKeyCreate,
-		Read:   resourceSentryKeyRead,
-		Update: resourceSentryKeyUpdate,
-		Delete: resourceSentryKeyDelete,
+		CreateContext: resourceSentryKeyCreate,
+		ReadContext:   resourceSentryKeyRead,
+		UpdateContext: resourceSentryKeyUpdate,
+		DeleteContext: resourceSentryKeyDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceKeyImport,
 		},
@@ -77,16 +77,15 @@ func resourceSentryKey() *schema.Resource {
 	}
 }
 
-func resourceSentryKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 
 	_, resp, err := client.Projects.Get(org, project)
 	if found, err := checkClientGet(resp, err, d); !found {
-		return fmt.Errorf("project not found \"%v\": %w", project, err)
+		return diag.Errorf("project not found \"%v\": %w", project, err)
 	}
 
 	params := &sentry.CreateProjectKeyParams{
@@ -100,17 +99,16 @@ func resourceSentryKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	logging.Debugf("Creating Sentry key named %s in org %s for project %s", params.Name, org, project)
 	key, _, err := client.ProjectKeys.Create(org, project, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Created Sentry key named %s in org %s for project %s", key.Name, org, project)
 	d.SetId(key.ID)
 
-	return resourceSentryKeyRead(d, meta)
+	return resourceSentryKeyRead(ctx, d, meta)
 }
 
-func resourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)
@@ -119,7 +117,7 @@ func resourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
 	logging.Debugf("Reading rule with ID %v in org %v for project %v", id, org, project)
 	keys, resp, err := client.ProjectKeys.List(org, project)
 	if found, err := checkClientGet(resp, err, d); !found {
-		return err
+		return diag.FromErr(err)
 	}
 
 	found := false
@@ -157,9 +155,8 @@ func resourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceSentryKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryKeyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)
@@ -175,17 +172,16 @@ func resourceSentryKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	logging.Debugf("Updating Sentry key with ID %s", id)
 	key, _, err := client.ProjectKeys.Update(org, project, id, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Updated Sentry key ID to %s", key.ID)
 
 	d.SetId(key.ID)
-	return resourceSentryKeyRead(d, meta)
+	return resourceSentryKeyRead(ctx, d, meta)
 }
 
-func resourceSentryKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryKeyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)
@@ -194,5 +190,5 @@ func resourceSentryKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	logging.Debugf("Deleting Sentry key with ID %s", id)
 	_, err := client.ProjectKeys.Delete(org, project, id)
 	logging.Debugf("Deleted Sentry key with ID %s", id)
-	return err
+	return diag.FromErr(err)
 }

@@ -3,6 +3,7 @@ package sentry
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 	"github.com/jianyuan/terraform-provider-sentry/logging"
@@ -10,7 +11,7 @@ import (
 
 func dataSourceSentryOrganization() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceSentryOrganizationRead,
+		ReadContext: dataSourceSentryOrganizationRead,
 		Schema: map[string]*schema.Schema{
 			"slug": {
 				Type:     schema.TypeString,
@@ -30,16 +31,15 @@ func dataSourceSentryOrganization() *schema.Resource {
 	}
 }
 
-func dataSourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func dataSourceSentryOrganizationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Get("slug").(string)
 
 	logging.Debugf("Reading Sentry org named with ID: %s", slug)
 	org, _, err := client.Organizations.Get(slug)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Read Sentry org named %s with ID: %s", org.Name, org.Slug)
 

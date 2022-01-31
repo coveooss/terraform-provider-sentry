@@ -3,6 +3,7 @@ package sentry
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 	"github.com/jianyuan/terraform-provider-sentry/logging"
@@ -10,12 +11,12 @@ import (
 
 func resourceSentryOrganization() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSentryOrganizationCreate,
-		Read:   resourceSentryOrganizationRead,
-		Update: resourceSentryOrganizationUpdate,
-		Delete: resourceSentryOrganizationDelete,
+		CreateContext: resourceSentryOrganizationCreate,
+		ReadContext:   resourceSentryOrganizationRead,
+		UpdateContext: resourceSentryOrganizationUpdate,
+		DeleteContext: resourceSentryOrganizationDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -39,9 +40,8 @@ func resourceSentryOrganization() *schema.Resource {
 	}
 }
 
-func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	params := &sentry.CreateOrganizationParams{
 		Name:       d.Get("name").(string),
@@ -52,24 +52,23 @@ func resourceSentryOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 	logging.Debugf("Creating Sentry organization %s", params.Name)
 	org, _, err := client.Organizations.Create(params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Created Sentry organization %s", org.Name)
 
 	d.SetId(org.Slug)
-	return resourceSentryOrganizationRead(d, meta)
+	return resourceSentryOrganizationRead(ctx, d, meta)
 }
 
-func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 
 	logging.Debugf("Reading Sentry organization %s", slug)
 	org, resp, err := client.Organizations.Get(slug)
 	if found, err := checkClientGet(resp, err, d); !found {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Read Sentry organization %s", org.Slug)
 
@@ -80,9 +79,8 @@ func resourceSentryOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 	params := &sentry.UpdateOrganizationParams{
@@ -93,17 +91,16 @@ func resourceSentryOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 	logging.Debugf("Updating Sentry organization %s", slug)
 	org, _, err := client.Organizations.Update(slug, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Updated Sentry organization %s", org.Slug)
 
 	d.SetId(org.Slug)
-	return resourceSentryOrganizationRead(d, meta)
+	return resourceSentryOrganizationRead(ctx, d, meta)
 }
 
-func resourceSentryOrganizationDelete(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryOrganizationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	slug := d.Id()
 
@@ -111,5 +108,5 @@ func resourceSentryOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 	_, err := client.Organizations.Delete(slug)
 	logging.Debugf("Deleted Sentry organization %s", slug)
 
-	return err
+	return diag.FromErr(err)
 }

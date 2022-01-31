@@ -2,9 +2,9 @@ package sentry
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 	"github.com/jianyuan/terraform-provider-sentry/logging"
@@ -19,10 +19,10 @@ const (
 
 func resourceSentryRule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSentryRuleCreate,
-		Read:   resourceSentryRuleRead,
-		Update: resourceSentryRuleUpdate,
-		Delete: resourceSentryRuleDelete,
+		CreateContext: resourceSentryRuleCreate,
+		ReadContext:   resourceSentryRuleRead,
+		UpdateContext: resourceSentryRuleUpdate,
+		DeleteContext: resourceSentryRuleDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceSentryRuleImporter,
 		},
@@ -90,9 +90,8 @@ func resourceSentryRule() *schema.Resource {
 	}
 }
 
-func resourceSentryRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	name := d.Get("name").(string)
 	org := d.Get("organization").(string)
@@ -152,18 +151,17 @@ func resourceSentryRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	logging.Debugf("Creating rule with name %v in org %v for project %v", name, org, project)
 	rule, _, err := client.Rules.Create(org, project, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Created rule with name %v and ID %s in org %v for project %v", rule.Name, rule.ID, org, project)
 
 	d.SetId(rule.ID)
 
-	return resourceSentryRuleRead(d, meta)
+	return resourceSentryRuleRead(ctx, d, meta)
 }
 
-func resourceSentryRuleRead(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 	id := d.Id()
@@ -171,7 +169,7 @@ func resourceSentryRuleRead(d *schema.ResourceData, meta interface{}) error {
 	logging.Debugf("Reading rule with ID %v in org %v for project %v", id, org, project)
 	rules, resp, err := client.Rules.List(org, project)
 	if found, err := checkClientGet(resp, err, d); !found {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var rule *sentry.Rule
@@ -186,7 +184,7 @@ func resourceSentryRuleRead(d *schema.ResourceData, meta interface{}) error {
 		if id == "" {
 			logging.Error("The rule ID was never set (ID was '')")
 		}
-		return errors.New("Could not find rule with ID " + id)
+		return diag.Errorf("Could not find rule with ID " + id)
 	}
 	logging.Debugf("Read rule with ID %v in org %v for project %v", rule.ID, org, project)
 
@@ -233,9 +231,8 @@ func resourceSentryRuleRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceSentryRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	id := d.Id()
 	name := d.Get("name").(string)
@@ -296,16 +293,15 @@ func resourceSentryRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	logging.Debugf("Updating rule with ID %v in org %v for project %v", id, org, project)
 	_, _, err := client.Rules.Update(org, project, id, params)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	logging.Debugf("Updated rule with ID %v in org %v for project %v", id, org, project)
 
-	return resourceSentryRuleRead(d, meta)
+	return resourceSentryRuleRead(ctx, d, meta)
 }
 
-func resourceSentryRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func resourceSentryRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	id := d.Id()
 	org := d.Get("organization").(string)
@@ -315,5 +311,5 @@ func resourceSentryRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	_, err := client.Rules.Delete(org, project, id)
 	logging.Debugf("Deleted rule with ID %v in org %v for project %v", id, org, project)
 
-	return err
+	return diag.FromErr(err)
 }

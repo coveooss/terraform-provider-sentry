@@ -2,9 +2,9 @@ package sentry
 
 import (
 	"context"
-	"fmt"
 	"sort"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
 	"github.com/jianyuan/terraform-provider-sentry/logging"
@@ -12,7 +12,7 @@ import (
 
 func dataSourceSentryKey() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceSentryKeyRead,
+		ReadContext: dataSourceSentryKeyRead,
 
 		Schema: map[string]*schema.Schema{
 			"organization": {
@@ -79,9 +79,8 @@ func dataSourceSentryKey() *schema.Resource {
 	}
 }
 
-func dataSourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
-	ctx := meta.(context.Context)
-	client := ctx.Value(ClientContextKey).(*sentry.Client)
+func dataSourceSentryKeyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*sentry.Client)
 
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
@@ -90,22 +89,22 @@ func dataSourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	keys, _, err := client.ProjectKeys.List(org, project)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if v, ok := d.GetOk("name"); ok {
 		name := v.(string)
 		for _, key := range keys {
 			if key.Name == name {
-				return sentryKeyAttributes(d, &key)
+				return diag.FromErr(sentryKeyAttributes(d, &key))
 			}
 		}
-		return fmt.Errorf("Can't find Sentry key: %s", v)
+		return diag.Errorf("Can't find Sentry key: %s", v)
 	}
 
 	if len(keys) == 1 {
 		logging.Debugf("sentry_key - single key named %s found: %s", keys[0].Name, keys[0].ID)
-		return sentryKeyAttributes(d, &keys[0])
+		return diag.FromErr(sentryKeyAttributes(d, &keys[0]))
 	}
 
 	first := d.Get("first").(bool)
@@ -117,10 +116,10 @@ func dataSourceSentryKeyRead(d *schema.ResourceData, meta interface{}) error {
 		})
 
 		logging.Debugf("sentry_key - choosing key named %s id: %s", keys[0].Name, keys[0].ID)
-		return sentryKeyAttributes(d, &keys[0])
+		return diag.FromErr(sentryKeyAttributes(d, &keys[0]))
 	}
 
-	return fmt.Errorf("There are %d keys associate to this project. "+
+	return diag.Errorf("There are %d keys associate to this project. "+
 		"To avoid ambiguity, please set `first` to true or filter the keys by specifying a `name`.",
 		len(keys))
 }

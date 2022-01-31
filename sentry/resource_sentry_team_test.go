@@ -1,7 +1,6 @@
 package sentry
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -56,7 +55,7 @@ func TestAccSentryTeam_basic(t *testing.T) {
 }
 
 func testAccCheckSentryTeamDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(context.Context).Value(ClientContextKey).(*sentry.Client)
+	client := testAccProvider.Meta().(*sentry.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "sentry_team" {
@@ -91,7 +90,7 @@ func testAccCheckSentryTeamExists(n string, team *sentry.Team) resource.TestChec
 			return errors.New("No team ID is set")
 		}
 
-		client := testAccProvider.Meta().(context.Context).Value(ClientContextKey).(*sentry.Client)
+		client := testAccProvider.Meta().(*sentry.Client)
 		sentryTeam, _, err := client.Teams.Get(
 			rs.Primary.Attributes["organization"],
 			rs.Primary.ID,
