@@ -24,7 +24,7 @@ func resourceSentryRule() *schema.Resource {
 		UpdateContext: resourceSentryRuleUpdate,
 		DeleteContext: resourceSentryRuleDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceSentryRuleImporter,
+			StateContext: resourceSentryRuleImporter,
 		},
 
 		Schema: map[string]*schema.Schema{

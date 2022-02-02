@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/jianyuan/terraform-provider-sentry/logging"
 )
 
-func resourceSentryTeamImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceSentryTeamImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	addrID := d.Id()
 
 	logging.Debugf("Importing key using ADDR ID %s", addrID)

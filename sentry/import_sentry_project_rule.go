@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/jianyuan/terraform-provider-sentry/logging"
 )
 
-func resourceSentryRuleImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceSentryRuleImporter(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	addrID := d.Id()
 
 	logging.Debugf("Importing rule using ADDR ID %s", addrID)
