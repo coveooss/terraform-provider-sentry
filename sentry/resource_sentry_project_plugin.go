@@ -15,7 +15,7 @@ func resourceSentryPlugin() *schema.Resource {
 		UpdateContext: resourceSentryPluginUpdate,
 		DeleteContext: resourceSentryPluginDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceSentryPluginImporter,
+			StateContext: resourceSentryPluginImporter,
 		},
 
 		Schema: map[string]*schema.Schema{

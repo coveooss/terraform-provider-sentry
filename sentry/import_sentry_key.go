@@ -1,13 +1,14 @@
 package sentry
 
 import (
+	"context"
 	"errors"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strings"
 )
 
-func resourceKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 
 	log.Printf("[DEBUG] Importing key using ADDR ID %s", id)
