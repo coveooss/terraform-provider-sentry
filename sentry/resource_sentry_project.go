@@ -3,9 +3,9 @@ package sentry
 import (
 	"context"
 	"errors"
-	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
@@ -111,10 +111,12 @@ func resourceSentryProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		Slug: d.Get("slug").(string),
 	}
 
+	tflog.Debug(ctx, "Creating Sentry project", "teamName", team, "org", org)
 	proj, _, err := client.Projects.Create(org, team, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	tflog.Debug(ctx, "Created Sentry project", "projectID", proj.Slug, "team", team, "org", org)
 
 	d.SetId(proj.Slug)
 	return resourceSentryProjectUpdate(ctx, d, meta)
@@ -126,10 +128,12 @@ func resourceSentryProjectRead(ctx context.Context, d *schema.ResourceData, meta
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
+	tflog.Debug(ctx, "Reading Sentry project", "projectID", slug, "org", org)
 	proj, resp, err := client.Projects.Get(org, slug)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
+	tflog.Debug(ctx, "Read Sentry project", "projectID", proj.Slug, "org", org)
 
 	d.SetId(proj.Slug)
 	d.Set("organization", proj.Organization.Slug)
@@ -178,10 +182,12 @@ func resourceSentryProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		params.ResolveAge = Int(v.(int))
 	}
 
+	tflog.Debug(ctx, "Updating Sentry project", "projectID", slug, "org", org)
 	proj, _, err := client.Projects.Update(org, slug, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	tflog.Debug(ctx, "Updated Sentry project", "projectID", proj.Slug, "org", org)
 
 	d.SetId(proj.Slug)
 	return resourceSentryProjectRead(ctx, d, meta)
@@ -193,8 +199,9 @@ func resourceSentryProjectDelete(ctx context.Context, d *schema.ResourceData, me
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
+	tflog.Debug(ctx, "Deleting Sentry project", "projectID", slug, "org", org)
 	_, err := client.Projects.Delete(org, slug)
-	logging.Debugf("Deleted Sentry project with ID %s in org %s", slug, org)
+	tflog.Debug(ctx, "Deleted Sentry project", "projectID", slug, "org", org)
 
 	return diag.FromErr(err)
 }
@@ -202,7 +209,7 @@ func resourceSentryProjectDelete(ctx context.Context, d *schema.ResourceData, me
 func resourceSentryProjectImporter(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	addrID := d.Id()
 
-	log.Printf("[DEBUG] Importing key using ADDR ID %s", addrID)
+	tflog.Debug(ctx, "Importing Sentry project", "ADDR_ID", addrID)
 
 	parts := strings.Split(addrID, "/")
 

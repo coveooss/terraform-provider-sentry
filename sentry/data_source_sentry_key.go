@@ -2,9 +2,9 @@ package sentry
 
 import (
 	"context"
-	"log"
 	"sort"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
@@ -85,6 +85,8 @@ func dataSourceSentryKeyRead(ctx context.Context, d *schema.ResourceData, meta i
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 
+	tflog.Debug(ctx, "Reading Sentry project keys", "org", org, "project", project)
+
 	keys, _, err := client.ProjectKeys.List(org, project)
 	if err != nil {
 		return diag.FromErr(err)
@@ -101,19 +103,19 @@ func dataSourceSentryKeyRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if len(keys) == 1 {
-		logging.Debugf("sentry_key - single key named %s found: %s", keys[0].Name, keys[0].ID)
+		tflog.Debug(ctx, "Sentry key - single key", "keyName", keys[0].Name, "keyID", keys[0].ID)
 		return diag.FromErr(sentryKeyAttributes(d, &keys[0]))
 	}
 
 	first := d.Get("first").(bool)
-	log.Printf("[DEBUG] sentry_key - multiple results found and `first` is set to: %t", first)
+	tflog.Debug(ctx, "Sentry key - multiple results found", "first_set_to", first)
 	if first {
 		// Sort keys by date created
 		sort.Slice(keys, func(i, j int) bool {
 			return keys[i].DateCreated.Before(keys[j].DateCreated)
 		})
 
-		logging.Debugf("sentry_key - choosing key named %s id: %s", keys[0].Name, keys[0].ID)
+		tflog.Debug(ctx, "Sentry key - choosing key", "keyName", keys[0].Name, "keyID", keys[0].ID)
 		return diag.FromErr(sentryKeyAttributes(d, &keys[0]))
 	}
 

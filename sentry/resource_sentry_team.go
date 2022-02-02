@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
@@ -64,12 +65,13 @@ func resourceSentryTeamCreate(ctx context.Context, d *schema.ResourceData, meta 
 		Name: d.Get("name").(string),
 		Slug: d.Get("slug").(string),
 	}
-	log.Printf("[DEBUG] Creating Sentry team %s (Organization: %s)", params.Name, org)
 
+	tflog.Debug(ctx, "Creating Sentry team", "teamName", params.Name, "org", org)
 	team, _, err := client.Teams.Create(org, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	tflog.Debug(ctx, "Created Sentry team", "teamName", team.Name, "org", org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(ctx, d, meta)
@@ -82,10 +84,12 @@ func resourceSentryTeamRead(ctx context.Context, d *schema.ResourceData, meta in
 	org := d.Get("organization").(string)
 	log.Printf("[DEBUG] Reading Sentry team %s (Organization: %s)", slug, org)
 
+	tflog.Debug(ctx, "Reading Sentry team", "teamID", slug, "org", org)
 	team, resp, err := client.Teams.Get(org, slug)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
+	tflog.Debug(ctx, "Read Sentry team", "teamID", team.Slug, "org", org)
 
 	d.SetId(team.Slug)
 	d.Set("team_id", team.ID)
@@ -109,10 +113,12 @@ func resourceSentryTeamUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	log.Printf("[DEBUG] Updating Sentry team %s (Organization: %s)", slug, org)
 
+	tflog.Debug(ctx, "Updating Sentry team", "teamID", slug, "org", org)
 	team, _, err := client.Teams.Update(org, slug, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	tflog.Debug(ctx, "Updated Sentry team", "teamID", team.Slug, "org", org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(ctx, d, meta)
@@ -125,8 +131,9 @@ func resourceSentryTeamDelete(ctx context.Context, d *schema.ResourceData, meta 
 	org := d.Get("organization").(string)
 	log.Printf("[DEBUG] Deleting Sentry team %s (Organization: %s)", slug, org)
 
+	tflog.Debug(ctx, "Deleting Sentry team", "teamID", slug, "org", org)
 	_, err := client.Teams.Delete(org, slug)
-	logging.Debugf("Deleted Sentry team %s in org %s", slug, org)
+	tflog.Debug(ctx, "Deleted Sentry team", "teamID", slug, "org", org)
 
 	return diag.FromErr(err)
 }
