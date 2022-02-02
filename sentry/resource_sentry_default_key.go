@@ -4,10 +4,10 @@ import (
 	"context"
 	"sort"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
-	"github.com/jianyuan/terraform-provider-sentry/logging"
 )
 
 func resourceSentryDefaultKey() *schema.Resource {
@@ -55,17 +55,17 @@ func resourceSentryDefaultKeyCreate(ctx context.Context, d *schema.ResourceData,
 		},
 	}
 
-	logging.Debugf("Creating Sentry default key in org %s for project %s with ID %s", org, project, id)
+	tflog.Debug(ctx, "Creating Sentry default key", "org", org, "project", project, "ID", id)
 	if _, _, err := client.ProjectKeys.Update(org, project, id, params); err != nil {
 		return diag.FromErr(err)
 	}
-	logging.Debugf("Created Sentry default key in org %s for project %s with ID %s", org, project, id)
+	tflog.Debug(ctx, "Created Sentry default key", "org", org, "project", project, "ID", id)
 
 	d.SetId(id)
 	return resourceSentryKeyRead(ctx, d, meta)
 }
 
 func resourceAwsDefaultVpcDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	logging.Warning("Cannot destroy Default Key. Terraform will remove this resource from the state file, however resources may remain.")
+	tflog.Warn(ctx, "Cannot destroy Default Key. Terraform will remove this resource from the state file, however resources may remain.")
 	return nil
 }

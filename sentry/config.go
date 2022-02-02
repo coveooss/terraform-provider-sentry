@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/jianyuan/go-sentry/sentry"
-	"github.com/jianyuan/terraform-provider-sentry/logging"
 )
 
 // Config is the configuration structure used to instantiate the Sentry
@@ -23,7 +22,6 @@ func (c *Config) Client(ctx context.Context) (interface{}, error) {
 
 	if c.BaseURL != "" {
 		baseURL, err = url.Parse(c.BaseURL)
-		logging.Debugf("Parsing base url %s", c.BaseURL)
 		tflog.Debug(ctx, "Parsing base url", "BaseUrl", c.BaseURL)
 		if err != nil {
 			return nil, err

@@ -5,14 +5,14 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jianyuan/terraform-provider-sentry/logging"
 )
 
 func resourceKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 
-	logging.Debugf("Importing key using ADDR ID %s", id)
+	tflog.Debug(ctx, "Importing Sentry key", "ADDR_ID", id)
 
 	parts := strings.Split(id, "/")
 

@@ -3,10 +3,10 @@ package sentry
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jianyuan/go-sentry/sentry"
-	"github.com/jianyuan/terraform-provider-sentry/logging"
 )
 
 func resourceSentryTeam() *schema.Resource {
@@ -64,13 +64,13 @@ func resourceSentryTeamCreate(ctx context.Context, d *schema.ResourceData, meta 
 		Name: d.Get("name").(string),
 		Slug: d.Get("slug").(string),
 	}
-	logging.Debugf("Creating Sentry team %s in org %s", params.Name, org)
 
+	tflog.Debug(ctx, "Creating Sentry team", "teamName", params.Name, "org", org)
 	team, _, err := client.Teams.Create(org, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	logging.Debugf("Created Sentry team %s in org %s", team.Name, org)
+	tflog.Debug(ctx, "Created Sentry team", "teamName", team.Name, "org", org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(ctx, d, meta)
@@ -82,12 +82,12 @@ func resourceSentryTeamRead(ctx context.Context, d *schema.ResourceData, meta in
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
-	logging.Debugf("Reading Sentry team %s in org %s", slug, org)
+	tflog.Debug(ctx, "Reading Sentry team", "teamID", slug, "org", org)
 	team, resp, err := client.Teams.Get(org, slug)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
-	logging.Debugf("Read Sentry team %s in org %s", team.Slug, org)
+	tflog.Debug(ctx, "Read Sentry team", "teamID", team.Slug, "org", org)
 
 	d.SetId(team.Slug)
 	d.Set("team_id", team.ID)
@@ -110,12 +110,12 @@ func resourceSentryTeamUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		Slug: d.Get("slug").(string),
 	}
 
-	logging.Debugf("Updating Sentry team %s in org %s", slug, org)
+	tflog.Debug(ctx, "Updating Sentry team", "teamID", slug, "org", org)
 	team, _, err := client.Teams.Update(org, slug, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	logging.Debugf("Updated Sentry team %s in org %s", team.Slug, org)
+	tflog.Debug(ctx, "Updated Sentry team", "teamID", team.Slug, "org", org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(ctx, d, meta)
@@ -127,9 +127,9 @@ func resourceSentryTeamDelete(ctx context.Context, d *schema.ResourceData, meta 
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
-	logging.Debugf("Deleting Sentry team %s in org %s", slug, org)
+	tflog.Debug(ctx, "Deleting Sentry team", "teamID", slug, "org", org)
 	_, err := client.Teams.Delete(org, slug)
-	logging.Debugf("Deleted Sentry team %s in org %s", slug, org)
+	tflog.Debug(ctx, "Deleted Sentry team", "teamID", slug, "org", org)
 
 	return diag.FromErr(err)
 }
