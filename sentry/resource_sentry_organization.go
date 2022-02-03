@@ -2,7 +2,6 @@ package sentry
 
 import (
 	"context"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -49,7 +48,6 @@ func resourceSentryOrganizationCreate(ctx context.Context, d *schema.ResourceDat
 		Slug:       d.Get("slug").(string),
 		AgreeTerms: sentry.Bool(d.Get("agree_terms").(bool)),
 	}
-	log.Printf("[DEBUG] Creating Sentry organization %s", params.Name)
 
 	tflog.Debug(ctx, "Creating Sentry organization", "orgName", params.Name)
 	org, _, err := client.Organizations.Create(params)
@@ -66,7 +64,6 @@ func resourceSentryOrganizationRead(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*sentry.Client)
 
 	slug := d.Id()
-	log.Printf("[DEBUG] Reading Sentry organization %s", slug)
 
 	tflog.Debug(ctx, "Reading Sentry organization", "orgSlug", slug)
 	org, resp, err := client.Organizations.Get(slug)
@@ -86,7 +83,6 @@ func resourceSentryOrganizationUpdate(ctx context.Context, d *schema.ResourceDat
 	client := meta.(*sentry.Client)
 
 	slug := d.Id()
-	log.Printf("[DEBUG] Updating Sentry organization %s", slug)
 	params := &sentry.UpdateOrganizationParams{
 		Name: d.Get("name").(string),
 		Slug: d.Get("slug").(string),
@@ -107,7 +103,6 @@ func resourceSentryOrganizationDelete(ctx context.Context, d *schema.ResourceDat
 	client := meta.(*sentry.Client)
 
 	slug := d.Id()
-	log.Printf("[DEBUG] Deleting Sentry organization %s", slug)
 
 	tflog.Debug(ctx, "Deleting Sentry organization", "orgSlug", slug)
 	_, err := client.Organizations.Delete(slug)

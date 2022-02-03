@@ -2,7 +2,6 @@ package sentry
 
 import (
 	"context"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -82,7 +81,6 @@ func resourceSentryTeamRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
-	log.Printf("[DEBUG] Reading Sentry team %s (Organization: %s)", slug, org)
 
 	tflog.Debug(ctx, "Reading Sentry team", "teamID", slug, "org", org)
 	team, resp, err := client.Teams.Get(org, slug)
@@ -111,7 +109,6 @@ func resourceSentryTeamUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		Name: d.Get("name").(string),
 		Slug: d.Get("slug").(string),
 	}
-	log.Printf("[DEBUG] Updating Sentry team %s (Organization: %s)", slug, org)
 
 	tflog.Debug(ctx, "Updating Sentry team", "teamID", slug, "org", org)
 	team, _, err := client.Teams.Update(org, slug, params)
@@ -129,7 +126,6 @@ func resourceSentryTeamDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	slug := d.Id()
 	org := d.Get("organization").(string)
-	log.Printf("[DEBUG] Deleting Sentry team %s (Organization: %s)", slug, org)
 
 	tflog.Debug(ctx, "Deleting Sentry team", "teamID", slug, "org", org)
 	_, err := client.Teams.Delete(org, slug)
