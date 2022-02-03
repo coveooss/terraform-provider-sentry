@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/jianyuan/go-sentry/sentry"
 )
 
@@ -16,7 +17,7 @@ type Config struct {
 }
 
 // Client to connect to Sentry.
-func (c *Config) Client(ctx context.Context) (interface{}, error) {
+func (c *Config) Client(ctx context.Context) (interface{}, diag.Diagnostics) {
 	var baseURL *url.URL
 	var err error
 
@@ -24,7 +25,7 @@ func (c *Config) Client(ctx context.Context) (interface{}, error) {
 		baseURL, err = url.Parse(c.BaseURL)
 		tflog.Debug(ctx, "Parsing base url", "BaseUrl", c.BaseURL)
 		if err != nil {
-			return nil, err
+			return nil, diag.FromErr(err)
 		}
 	} else {
 		tflog.Warn(ctx, "No base URL was set for the Sentry client")

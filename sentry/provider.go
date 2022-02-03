@@ -7,10 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type contextKey string
-
-const ClientContextKey contextKey = "client"
-
 // Provider returns a *schema.Provider.
 func Provider() *schema.Provider {
 	return &schema.Provider{
@@ -53,6 +49,5 @@ func providerContextConfigure(ctx context.Context, d *schema.ResourceData) (inte
 		Token:   d.Get("token").(string),
 		BaseURL: d.Get("base_url").(string),
 	}
-	client, err := config.Client(ctx)
-	return client, diag.FromErr(err)
+	return config.Client(ctx)
 }

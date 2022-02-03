@@ -41,7 +41,7 @@ func dataSourceSentryOrganizationRead(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Reading Sentry org", "orgName", org.Name, "orgSlug", org.Slug)
+	tflog.Debug(ctx, "Read Sentry org", "orgName", org.Name, "orgSlug", org.Slug)
 
 	d.SetId(org.Slug)
 	d.Set("internal_id", org.ID)
