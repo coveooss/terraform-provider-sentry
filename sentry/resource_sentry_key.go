@@ -125,7 +125,7 @@ func resourceSentryKeyRead(ctx context.Context, d *schema.ResourceData, meta int
 
 	for _, key := range keys {
 		if key.ID == id {
-			tflog.Debug(ctx, "Read Sentry key", "keyID", id, "org", org, "project", project)
+			tflog.Debug(ctx, "Found Sentry key", "keyID", id, "org", org, "project", project)
 			d.SetId(key.ID)
 			d.Set("name", key.Name)
 			d.Set("public", key.Public)
