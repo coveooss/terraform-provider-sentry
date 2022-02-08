@@ -12,7 +12,7 @@ import (
 func resourceKeyImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id := d.Id()
 
-	tflog.Debug(ctx, "Importing Sentry key", "ADDR_ID", id)
+	tflog.Debug(ctx, "Importing Sentry key", "keyID", id)
 
 	parts := strings.Split(id, "/")
 

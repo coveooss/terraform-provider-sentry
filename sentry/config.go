@@ -24,6 +24,7 @@ func (c *Config) Client(ctx context.Context) (interface{}, diag.Diagnostics) {
 	if c.BaseURL != "" {
 		baseURL, err = url.Parse(c.BaseURL)
 		tflog.Debug(ctx, "Parsing base url", "BaseUrl", c.BaseURL)
+		baseURL, err = url.Parse(c.BaseURL)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}

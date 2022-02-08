@@ -102,19 +102,19 @@ func dataSourceSentryKeyRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if len(keys) == 1 {
-		tflog.Debug(ctx, "Sentry key - single key", "keyName", keys[0].Name, "keyID", keys[0].ID)
+		tflog.Debug(ctx, "sentry_key - single key", "keyName", keys[0].Name, "keyID", keys[0].ID)
 		return diag.FromErr(sentryKeyAttributes(d, &keys[0]))
 	}
 
 	first := d.Get("first").(bool)
-	tflog.Debug(ctx, "Sentry key - multiple results found", "first_set_to", first)
+	tflog.Debug(ctx, "sentry_key - multiple results found", "first", first)
 	if first {
 		// Sort keys by date created
 		sort.Slice(keys, func(i, j int) bool {
 			return keys[i].DateCreated.Before(keys[j].DateCreated)
 		})
 
-		tflog.Debug(ctx, "Sentry key - choosing key", "keyName", keys[0].Name, "keyID", keys[0].ID)
+		tflog.Debug(ctx, "sentry_key - Found more than one key. Returning the oldest (`first`) key.", "keyName", keys[0].Name, "keyID", keys[0].ID)
 		return diag.FromErr(sentryKeyAttributes(d, &keys[0]))
 	}
 

@@ -209,7 +209,7 @@ func resourceSentryProjectDelete(ctx context.Context, d *schema.ResourceData, me
 func resourceSentryProjectImporter(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	addrID := d.Id()
 
-	tflog.Debug(ctx, "Importing Sentry project", "ADDR_ID", addrID)
+	tflog.Debug(ctx, "Importing Sentry project", "projetID", addrID)
 
 	parts := strings.Split(addrID, "/")
 
