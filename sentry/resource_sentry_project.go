@@ -116,7 +116,7 @@ func resourceSentryProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Created Sentry project", "projectSlug", proj.Slug, "team", team, "org", org)
+	tflog.Debug(ctx, "Created Sentry project", "projectSlug", proj.Slug, "projectID", proj.ID, "team", team, "org", org)
 
 	d.SetId(proj.Slug)
 	return resourceSentryProjectUpdate(ctx, d, meta)
@@ -133,7 +133,7 @@ func resourceSentryProjectRead(ctx context.Context, d *schema.ResourceData, meta
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Read Sentry project", "projectSlug", proj.Slug, "org", org)
+	tflog.Debug(ctx, "Read Sentry project", "projectSlug", proj.Slug, "projectID", proj.ID, "org", org)
 
 	d.SetId(proj.Slug)
 	d.Set("organization", proj.Organization.Slug)
@@ -187,7 +187,7 @@ func resourceSentryProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Updated Sentry project", "projectSlug", proj.Slug, "org", org)
+	tflog.Debug(ctx, "Updated Sentry project", "projectSlug", proj.Slug, "projectID", proj.ID, "org", org)
 
 	d.SetId(proj.Slug)
 	return resourceSentryProjectRead(ctx, d, meta)

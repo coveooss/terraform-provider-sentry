@@ -54,7 +54,7 @@ func resourceSentryOrganizationCreate(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Created Sentry organization", "orgName", org.Name)
+	tflog.Debug(ctx, "Created Sentry organization", "orgName", org.Name, "orgID", org.ID)
 
 	d.SetId(org.Slug)
 	return resourceSentryOrganizationRead(ctx, d, meta)
@@ -70,7 +70,7 @@ func resourceSentryOrganizationRead(ctx context.Context, d *schema.ResourceData,
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Read Sentry organization", "orgSlug", org.Slug)
+	tflog.Debug(ctx, "Read Sentry organization", "orgSlug", org.Slug, "orgID", org.ID)
 
 	d.SetId(org.Slug)
 	d.Set("internal_id", org.ID)
@@ -93,7 +93,7 @@ func resourceSentryOrganizationUpdate(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Updated Sentry organization", "orgSlug", org.Slug)
+	tflog.Debug(ctx, "Updated Sentry organization", "orgSlug", org.Slug, "orgID", org.ID)
 
 	d.SetId(org.Slug)
 	return resourceSentryOrganizationRead(ctx, d, meta)

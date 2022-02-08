@@ -87,7 +87,7 @@ func resourceSentryTeamRead(ctx context.Context, d *schema.ResourceData, meta in
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Read Sentry team", "teamSlug", team.Slug, "org", org)
+	tflog.Debug(ctx, "Read Sentry team", "teamSlug", team.Slug, "teamID", team.ID, "org", org)
 
 	d.SetId(team.Slug)
 	d.Set("team_id", team.ID)
@@ -115,7 +115,7 @@ func resourceSentryTeamUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Updated Sentry team", "teamSlug", team.Slug, "org", org)
+	tflog.Debug(ctx, "Updated Sentry team", "teamSlug", team.Slug, "teamID", team.ID, "org", org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(ctx, d, meta)
