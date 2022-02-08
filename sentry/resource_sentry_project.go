@@ -116,7 +116,7 @@ func resourceSentryProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Created Sentry project", "projectID", proj.Slug, "team", team, "org", org)
+	tflog.Debug(ctx, "Created Sentry project", "projectSlug", proj.Slug, "team", team, "org", org)
 
 	d.SetId(proj.Slug)
 	return resourceSentryProjectUpdate(ctx, d, meta)
@@ -128,12 +128,12 @@ func resourceSentryProjectRead(ctx context.Context, d *schema.ResourceData, meta
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
-	tflog.Debug(ctx, "Reading Sentry project", "projectID", slug, "org", org)
+	tflog.Debug(ctx, "Reading Sentry project", "projectSlug", slug, "org", org)
 	proj, resp, err := client.Projects.Get(org, slug)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Read Sentry project", "projectID", proj.Slug, "org", org)
+	tflog.Debug(ctx, "Read Sentry project", "projectSlug", proj.Slug, "org", org)
 
 	d.SetId(proj.Slug)
 	d.Set("organization", proj.Organization.Slug)
@@ -182,12 +182,12 @@ func resourceSentryProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		params.ResolveAge = Int(v.(int))
 	}
 
-	tflog.Debug(ctx, "Updating Sentry project", "projectID", slug, "org", org)
+	tflog.Debug(ctx, "Updating Sentry project", "projectSlug", slug, "org", org)
 	proj, _, err := client.Projects.Update(org, slug, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Updated Sentry project", "projectID", proj.Slug, "org", org)
+	tflog.Debug(ctx, "Updated Sentry project", "projectSlug", proj.Slug, "org", org)
 
 	d.SetId(proj.Slug)
 	return resourceSentryProjectRead(ctx, d, meta)
@@ -199,9 +199,9 @@ func resourceSentryProjectDelete(ctx context.Context, d *schema.ResourceData, me
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
-	tflog.Debug(ctx, "Deleting Sentry project", "projectID", slug, "org", org)
+	tflog.Debug(ctx, "Deleting Sentry project", "projectSlug", slug, "org", org)
 	_, err := client.Projects.Delete(org, slug)
-	tflog.Debug(ctx, "Deleted Sentry project", "projectID", slug, "org", org)
+	tflog.Debug(ctx, "Deleted Sentry project", "projectSlug", slug, "org", org)
 
 	return diag.FromErr(err)
 }

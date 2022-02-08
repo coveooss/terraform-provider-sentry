@@ -82,12 +82,12 @@ func resourceSentryTeamRead(ctx context.Context, d *schema.ResourceData, meta in
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
-	tflog.Debug(ctx, "Reading Sentry team", "teamID", slug, "org", org)
+	tflog.Debug(ctx, "Reading Sentry team", "teamSlug", slug, "org", org)
 	team, resp, err := client.Teams.Get(org, slug)
 	if found, err := checkClientGet(resp, err, d); !found {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Read Sentry team", "teamID", team.Slug, "org", org)
+	tflog.Debug(ctx, "Read Sentry team", "teamSlug", team.Slug, "org", org)
 
 	d.SetId(team.Slug)
 	d.Set("team_id", team.ID)
@@ -110,12 +110,12 @@ func resourceSentryTeamUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		Slug: d.Get("slug").(string),
 	}
 
-	tflog.Debug(ctx, "Updating Sentry team", "teamID", slug, "org", org)
+	tflog.Debug(ctx, "Updating Sentry team", "teamSlug", slug, "org", org)
 	team, _, err := client.Teams.Update(org, slug, params)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, "Updated Sentry team", "teamID", team.Slug, "org", org)
+	tflog.Debug(ctx, "Updated Sentry team", "teamSlug", team.Slug, "org", org)
 
 	d.SetId(team.Slug)
 	return resourceSentryTeamRead(ctx, d, meta)
@@ -127,9 +127,9 @@ func resourceSentryTeamDelete(ctx context.Context, d *schema.ResourceData, meta 
 	slug := d.Id()
 	org := d.Get("organization").(string)
 
-	tflog.Debug(ctx, "Deleting Sentry team", "teamID", slug, "org", org)
+	tflog.Debug(ctx, "Deleting Sentry team", "teamSlug", slug, "org", org)
 	_, err := client.Teams.Delete(org, slug)
-	tflog.Debug(ctx, "Deleted Sentry team", "teamID", slug, "org", org)
+	tflog.Debug(ctx, "Deleted Sentry team", "teamSlug", slug, "org", org)
 
 	return diag.FromErr(err)
 }
