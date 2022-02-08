@@ -85,7 +85,7 @@ func resourceSentryKeyCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	_, resp, err := client.Projects.Get(org, project)
 	if found, err := checkClientGet(resp, err, d); !found {
-		return diag.Errorf("project not found \"%v\": %w", project, err)
+		return diag.Errorf("project not found \"%v\": %v", project, err)
 	}
 
 	params := &sentry.CreateProjectKeyParams{
