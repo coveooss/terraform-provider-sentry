@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/coveooss/go-sentry/v2/sentry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jianyuan/go-sentry/v2/sentry"
 )
 
 func buildTwoPartID(a, b string) string {

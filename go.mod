@@ -3,12 +3,12 @@ module github.com/jianyuan/terraform-provider-sentry
 go 1.18
 
 require (
+	github.com/coveooss/go-sentry/v2 v2.0.1 // our fast-patched version
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.22.0
-	github.com/jianyuan/go-sentry/v2 v2.0.0-20220719223837-ea2d74476beb
 	github.com/mitchellh/mapstructure v1.5.0
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde

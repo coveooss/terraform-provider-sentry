@@ -3,13 +3,15 @@ package sentry
 import (
 	"context"
 	"net/http"
+	"os"
+	"strconv"
 
+	"github.com/coveooss/go-sentry/v2/sentry"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jianyuan/go-sentry/v2/sentry"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -187,6 +189,17 @@ func resourceSentryIssueAlertCreate(ctx context.Context, d *schema.ResourceData,
 	org := d.Get("organization").(string)
 	project := d.Get("project").(string)
 	alertReq := resourceSentryIssueAlertObject(d)
+
+	pollInterval, err := strconv.Atoi(os.Getenv("GO_SENTRY_GET_TASK_DETAIL_POLL_INT"))
+	if err != nil {
+		pollInterval = 5
+	}
+	retryCount, err := strconv.Atoi(os.Getenv("GO_SENTRY_GET_TASK_DETAIL_RETRIES"))
+	if err != nil {
+		retryCount = 12
+	}
+	ctx = context.WithValue(ctx, sentry.TaskDetailPollIntervalCtxKey, pollInterval)
+	ctx = context.WithValue(ctx, sentry.TaskDetailRetryCountCtxKey, retryCount)
 
 	tflog.Debug(ctx, "Creating issue alert", map[string]interface{}{
 		"org":       org,
