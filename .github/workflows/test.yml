@@ -20,6 +20,9 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+permissions:
+  contents: read
+
 jobs:
   # ensure the code builds...
   build:
@@ -27,6 +30,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
@@ -42,6 +50,11 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
@@ -71,6 +84,11 @@ jobs:
           - "1.1.*"
           - "1.2.*"
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
