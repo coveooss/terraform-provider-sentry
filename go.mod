@@ -6,13 +6,13 @@ require (
 	github.com/hashicorp/go-cty v1.4.1-0.20200723130312-85980079f637
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-retryablehttp v0.7.2
-	github.com/hashicorp/terraform-plugin-docs v0.14.1
-	github.com/hashicorp/terraform-plugin-log v0.8.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.25.0
-	github.com/jianyuan/go-sentry/v2 v2.2.0
+	github.com/hashicorp/terraform-plugin-docs v0.20.1
+	github.com/hashicorp/terraform-plugin-log v0.9.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.36.0
+	github.com/jianyuan/go-sentry/v2 v2.8.4
 	github.com/mitchellh/mapstructure v1.5.0
-	golang.org/x/oauth2 v0.5.0
-	golang.org/x/sync v0.1.0
+	golang.org/x/oauth2 v0.26.0
+	golang.org/x/sync v0.11.0
 )
 
 require (
@@ -75,4 +75,4 @@ require (
 )
 
 // remove once we drop our fork
-replace github.com/jianyuan/go-sentry/v2 => github.com/coveooss/go-sentry/v2 v2.3.1
+replace github.com/jianyuan/go-sentry/v2 => github.com/coveooss/go-sentry/v2 v2.42.42
