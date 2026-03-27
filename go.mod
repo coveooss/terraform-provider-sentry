@@ -75,4 +75,4 @@ require (
 )
 
 // remove once we drop our fork
-replace github.com/jianyuan/go-sentry/v2 => github.com/coveooss/go-sentry/v2 v2.3.1
+replace github.com/jianyuan/go-sentry/v2 => github.com/coveooss/go-sentry/v2 v2.42.42

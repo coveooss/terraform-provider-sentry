@@ -28,6 +28,8 @@ github.com/bgentry/speakeasy v0.1.0 h1:ByYyxL9InA1OWqxJqqp2A5pYHUrCiAL6K3J+LKSsQ
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/coveooss/go-sentry/v2 v2.3.1 h1:VnlrVqbsoeF6ILXZ2BWqq2Fe+4JvXoEBZ2aOpBDbrAY=
 github.com/coveooss/go-sentry/v2 v2.3.1/go.mod h1:lj3rm5L8y4fpA7hN2P35KvNxAlnxgQMS5F1iHYPfJM0=
+github.com/coveooss/go-sentry/v2 v2.42.42 h1:bsdVXivrPLR823N5LS74VcXrbKE2+yNZMBMrM7tC1Jc=
+github.com/coveooss/go-sentry/v2 v2.42.42/go.mod h1:BlFtYzQcqU6kgktxQaywtX57+dpOTRupozdIfOittG4=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
