@@ -1,6 +1,6 @@
 module github.com/jianyuan/terraform-provider-sentry
 
-go 1.19
+go 1.23.0
 
 require (
 	github.com/hashicorp/go-cty v1.4.1-0.20200723130312-85980079f637
@@ -11,7 +11,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.25.0
 	github.com/jianyuan/go-sentry/v2 v2.2.0
 	github.com/mitchellh/mapstructure v1.5.0
-	golang.org/x/oauth2 v0.5.0
+	golang.org/x/oauth2 v0.27.0
 	golang.org/x/sync v0.1.0
 )
 
